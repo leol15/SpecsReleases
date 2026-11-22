@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  Share-link redirect (work.html and chapter.html are the same file; the path picks the link kind).
+  https://leol15.github.io/SpecsReleases/work?…    → specs://work?…
+  https://leol15.github.io/SpecsReleases/chapter?… → specs://chapter?…
+  The app makes these links (dev.specs.source.ShareLink); the query is passed through unchanged.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Open in Specs</title>
+<style>
+  :root { color-scheme: light dark; --bg: #fafafa; --fg: #1c1b1f; --muted: #666; --accent: #3b5bdb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #141218; --fg: #e6e1e5; --muted: #a09ca6; --accent: #91a7ff; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 32rem; margin: 0 auto; padding: 15vh 16px 32px; text-align: center; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; overflow-wrap: anywhere; }
+  .sub { color: var(--muted); margin: 0 0 28px; overflow-wrap: anywhere; }
+  .open { display: inline-block; padding: 12px 28px; border-radius: 999px; background: var(--accent); color: var(--bg);
+          font-weight: 600; text-decoration: none; }
+  .note { color: var(--muted); font-size: .9rem; margin-top: 28px; }
+  .note a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Open in Specs</h1>
+  <p class="sub" id="sub"></p>
+  <a class="open" id="open" href="#">Open in Specs</a>
+  <p class="note">Nothing happened? This link needs the Specs app on Android.
+    <a href="https://github.com/leol15/SpecsReleases/releases/latest">Get the app</a>.</p>
+</main>
+<script>
+(function () {
+  var kind = /chapter(\.html)?\/?$/.test(location.pathname) ? "chapter" : "work";
+  var query = location.search.replace(/^\?/, "");
+  var params = new URLSearchParams(query);
+  var title = params.get("t");
+  if (title) {
+    document.getElementById("title").textContent = title;
+    document.title = title + " · Specs";
+  }
+  if (kind === "chapter" && params.get("n")) document.getElementById("sub").textContent = params.get("n");
+
+  var app = "specs://" + kind + "?" + query;
+  // On Android, an intent: link opens the app without the browser's "unknown scheme" error and falls back to
+  // the download page when the app isn't installed. The automatic attempt uses the plain link, which fails quietly.
+  var android = /Android/i.test(navigator.userAgent);
+  var button = android
+    ? "intent://" + kind + "?" + query + "#Intent;scheme=specs;package=dev.specs.app;S.browser_fallback_url=" +
+      encodeURIComponent("https://github.com/leol15/SpecsReleases/releases/latest") + ";end"
+    : app;
+  document.getElementById("open").href = button;
+  if (params.get("s") && title) location.href = app;
+})();
+</script>
+</body>
+</html>
