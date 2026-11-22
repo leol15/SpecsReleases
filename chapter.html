@@ -43,7 +43,8 @@
     document.getElementById("title").textContent = title;
     document.title = title + " · Specs";
   }
-  if (kind === "chapter" && params.get("n")) document.getElementById("sub").textContent = params.get("n");
+  // Older links carry the chapter name (n); newer ones only a key, so they just say it's a chapter.
+  if (kind === "chapter") document.getElementById("sub").textContent = params.get("n") || "A chapter";
 
   var app = "specs://" + kind + "?" + query;
   // On Android, an intent: link opens the app without the browser's "unknown scheme" error and falls back to
@@ -54,7 +55,7 @@
       encodeURIComponent("https://github.com/leol15/SpecsReleases/releases/latest") + ";end"
     : app;
   document.getElementById("open").href = button;
-  if (params.get("s") && title) location.href = app;
+  if (params.get("s")) location.href = app;
 })();
 </script>
 </body>
